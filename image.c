@@ -126,3 +126,73 @@ void image_save_txt(Image *img, const char *filename) {
 
     fclose(fp);
 }
+
+void image_save_bin(Image *img, const char *filename) {
+    if (img == NULL) return;
+    FILE *fp = fopen(filename, "wb");
+
+    // Header
+    fprintf(fp, "P6\n");
+    fprintf(fp, "%d %d\n", img->width, img->height);
+    fprintf(fp, "255\n");
+
+    // Content (binary)
+    int total = 3 * img->width * img->height;
+    fwrite(img->pixels, 1, total, fp);
+
+    fclose(fp);
+}
+
+Image* image_read_bin(const char *filename) {
+    FILE *fp = 0;
+    Image *img = 0;
+    fp = fopen(filename, "rb");
+
+    if (fp == NULL)
+        return NULL;
+
+    char buffer[64];
+    if (!fgets(buffer, sizeof(buffer), fp)) {
+        fclose(fp);
+        return NULL;
+    }
+    if (strncmp(buffer, "P6", 2) != 0) {
+        fclose(fp);
+        return NULL;
+    }
+
+    int width = 0, height = 0;
+    if (!fgets(buffer, sizeof(buffer), fp)) {
+        fclose(fp);
+        return NULL;
+    }
+    if (sscanf(buffer, "%d %d", &width, &height) != 2) {
+        fclose(fp);
+        return NULL;
+    }
+
+    if (!fgets(buffer, sizeof(buffer), fp)) {
+        fclose(fp);
+        return NULL;
+    }
+
+    int maxval = atoi(buffer); // atoi transforms une chaîne de caractères en entier
+    if (width <= 0 || height <= 0 || maxval <= 0 || maxval > 255) {
+        fclose(fp);
+        return NULL;
+    }
+
+    img = image_create(width, height);
+    if (!img) { fclose(fp); return NULL; }
+
+    int total = 3 * img->width * img->height;
+    int read = fread(img->pixels, 1, total, fp);
+    if (read != total) {
+        image_free(img);
+        fclose(fp);
+        return NULL;
+    }
+
+    fclose(fp);
+    return img;
+}

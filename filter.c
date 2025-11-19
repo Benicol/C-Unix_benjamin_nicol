@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     const char *outputFilename = argv[2];
     const char *filterType = argv[3];
 
-    Image *source = image_read_txt(inputFilename);
+    Image *source = image_read_bin(inputFilename);
     if (source == NULL) {
         fprintf(stderr, "Erreur lecture fichier d'entrée\n");
         return -1;
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Sauvegarde de l'image filtrée
-    image_save_txt(destination, outputFilename);
+    image_save_bin(destination, outputFilename);
     printf("Image filtrée sauvegardée dans %s\n", outputFilename);
 
     image_free(source);

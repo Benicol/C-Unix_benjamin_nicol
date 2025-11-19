@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    image_save_txt(img, "gradient.ppm");
+    image_save_bin(img, "gradient.ppm");
 
     image_free(img);
     return 0;
