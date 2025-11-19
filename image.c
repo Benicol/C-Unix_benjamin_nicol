@@ -14,7 +14,58 @@ Image* image_create(int width, int height) {
 Image* image_read_txt(const char *filename) {
     FILE *fp = 0;
     Image *img = 0;
-    // TODO
+    fp = fopen(filename, "r");
+
+    if (fp == NULL)
+        return NULL;
+
+    // Check if file is P3
+    char buffer[64];
+    fgets(buffer, sizeof(buffer), fp);
+    if (strncmp(buffer, "P3", 2) != 0) {
+        fclose(fp);
+        return NULL;
+    }
+
+    // Get width and height
+    int width = 0, height = 0;
+    fgets(buffer, sizeof(buffer), fp);
+    sscanf(buffer, "%d %d", &width, &height);
+
+    // Get max color size in character
+    fgets(buffer, sizeof(buffer), fp);
+
+    // Create image
+    img = image_create(width, height);
+
+    int big_buffer_size = 3 * width * height * 4; // *4 to be safe (la taille max d'un entier en ascii est 3 chiffres + espace)
+
+    char big_buffer[big_buffer_size];
+
+    while (fgets(big_buffer, big_buffer_size, fp)) {
+        char *ptr = big_buffer;
+        while (*ptr) {
+            /* Skip whitespace */
+            while (isspace((unsigned char)*ptr)) ptr++;
+
+            if (*ptr == '\0' || *ptr == '#') break; /* end of line or comment */
+
+            /* Read R, G, B values from the current big_buffer using sscanf and %n */
+            for (int i = 0; i < 3; i++) {
+                int value;
+                int consumed = 0;
+                if (sscanf(ptr, "%d%n", &value, &consumed) != 1) { /* %n me permet de savoir combien de caractères ont été consommés et donc de décallé le pointeur correctement ensuite*/
+                    ptr += strlen(ptr);
+                    break;
+                }
+                static int pixelIndex = 0;
+                img->pixels[pixelIndex++] = (unsigned char)value;
+                ptr += consumed;
+            }
+        }
+    }
+
+    fclose(fp);
     return img;
 }
 
@@ -31,6 +82,28 @@ void image_set_pixel(Image *img, int x, int y, unsigned char r, unsigned char g,
         img->pixels[index + 1] = g;
         img->pixels[index + 2] = b;
     }
+}
+
+// Implementations for channel getters
+unsigned char image_get_red(Image *img, int x, int y) {
+    if (img == NULL) return 0;
+    if (x < 0 || x >= img->width || y < 0 || y >= img->height) return 0;
+    int index = (y * img->width + x) * 3;
+    return img->pixels[index];
+}
+
+unsigned char image_get_green(Image *img, int x, int y) {
+    if (img == NULL) return 0;
+    if (x < 0 || x >= img->width || y < 0 || y >= img->height) return 0;
+    int index = (y * img->width + x) * 3;
+    return img->pixels[index + 1];
+}
+
+unsigned char image_get_blue(Image *img, int x, int y) {
+    if (img == NULL) return 0;
+    if (x < 0 || x >= img->width || y < 0 || y >= img->height) return 0;
+    int index = (y * img->width + x) * 3;
+    return img->pixels[index + 2];
 }
 
 void image_save_txt(Image *img, const char *filename) {
