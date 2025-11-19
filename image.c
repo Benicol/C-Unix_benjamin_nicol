@@ -19,7 +19,6 @@ Image* image_read_txt(const char *filename) {
     if (fp == NULL)
         return NULL;
 
-    // Check if file is P3
     char buffer[64];
     fgets(buffer, sizeof(buffer), fp);
     if (strncmp(buffer, "P3", 2) != 0) {
@@ -27,15 +26,12 @@ Image* image_read_txt(const char *filename) {
         return NULL;
     }
 
-    // Get width and height
     int width = 0, height = 0;
     fgets(buffer, sizeof(buffer), fp);
     sscanf(buffer, "%d %d", &width, &height);
 
-    // Get max color size in character
     fgets(buffer, sizeof(buffer), fp);
 
-    // Create image
     img = image_create(width, height);
 
     int big_buffer_size = 3 * width * height * 4; // *4 to be safe (la taille max d'un entier en ascii est 3 chiffres + espace)
@@ -50,7 +46,6 @@ Image* image_read_txt(const char *filename) {
 
             if (*ptr == '\0' || *ptr == '#') break; /* end of line or comment */
 
-            /* Read R, G, B values from the current big_buffer using sscanf and %n */
             for (int i = 0; i < 3; i++) {
                 int value;
                 int consumed = 0;
