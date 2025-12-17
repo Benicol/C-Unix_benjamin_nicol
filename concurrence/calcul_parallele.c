@@ -8,7 +8,6 @@
 #define MULTIPLICATEUR 1000
 
 static const int DONNEES[TAILLE_DONNEES] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-
 typedef struct thread_info_data
 {
     int valeur;
@@ -40,19 +39,14 @@ int main(void) {
 
     int64_t somme_total = 0;
 
-    // TODO: Créer un tableau de pthread_t
     pthread_t threads[TAILLE_DONNEES];
-    // TODO: Créer un tableau de structures d'arguments
     thread_info_data thread_data[TAILLE_DONNEES];
-    // TODO: Créer et démarrer tous les threads
     for (int i = 0; i < TAILLE_DONNEES; i++)
     {
         thread_data[i].valeur = DONNEES[i];
         thread_data[i].multiplicateur = MULTIPLICATEUR;
         pthread_create(&threads[i], NULL, calcul_thread, &thread_data[i]);
     }
-    // TODO: Attendre tous les threads
-    // TODO: Agréger les résultats
     for (int i = 0; i < TAILLE_DONNEES; i++)
     {
         pthread_join(threads[i], NULL);
