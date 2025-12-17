@@ -1,4 +1,4 @@
-#include "image.h"
+#include "../image.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -129,7 +129,7 @@ void image_save_txt(Image *img, const char *filename) {
 
 void image_save_bin(Image *img, const char *filename) {
     if (img == NULL) return;
-    FILE *fp = fopen(filename, "wb");
+    FILE *fp = fopen(filename, "wt");
 
     // Header
     fprintf(fp, "P6\n");
@@ -146,7 +146,7 @@ void image_save_bin(Image *img, const char *filename) {
 Image* image_read_bin(const char *filename) {
     FILE *fp = 0;
     Image *img = 0;
-    fp = fopen(filename, "rb");
+    fp = fopen(filename, "r");
 
     if (fp == NULL)
         return NULL;
